@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import Iterator
+from pathlib import Path
+from typing import Union, Iterator
 
+import h5py
 import numpy as np
 
 
@@ -10,6 +12,16 @@ class EEG:
     preparation_state: np.ndarray
     action_state: np.ndarray
     frequency: float = 500.0
+
+    @staticmethod
+    def from_hdf5(path: Union[Path, str], frequency: float = 500.0) -> 'EEG':
+        with h5py.File(path, 'r') as h5f:
+            return EEG(
+                h5f['eeg_data'],
+                h5f['preparation_state'],
+                h5f['action_state'],
+                frequency,
+            )
 
     def slice(self, start: int, end: int) -> 'EEG':
         return EEG(

@@ -27,12 +27,12 @@ class RemoveBeginning:
         length = eeg.data.shape[1]
         std = np.std(eeg.data[:, length // 10:], axis=1)
         anomalous = np.any(np.abs(eeg.data) > self.multiplier * std, axis=0)
-        cutoff = len(anomalous) - anomalous[::-1].argmax()
+        cutoff = anomalous.nonzero()[0][-1] + 1
         next_preparation = np.argmax(eeg.preparation_state[cutoff:] > 0)
         next_action = np.argmax(eeg.action_state[cutoff:] > 0)
         if next_action < next_preparation:
             previous_actions = eeg.action_state[:next_preparation] > 0
-            end_action = len(previous_actions) - np.argmax(previous_actions[::-1])
+            end_action = np.nonzero(previous_actions)[0][-1] + 1
             cutoff = (end_action + next_preparation) // 2
         eeg.data = eeg.data[:, cutoff:]
         eeg.preparation_state = eeg.preparation_state[cutoff:]
