@@ -5,7 +5,7 @@ import torch
 from torch import nn
 
 
-class RandomConv1D(nn.Module):
+class RandomConv1d(nn.Module):
     def __init__(
             self,
             channels: int,
