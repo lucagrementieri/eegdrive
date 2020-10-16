@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Union, Dict, List
 
 import numpy as np
-from tqdm import tqdm
 
 from .eeg import EEG
 from .transforms import HighPass, RemoveBeginning, RemoveLineNoise, Standardize
@@ -24,13 +23,13 @@ def ingest_session(
     }
     lengths = []
     essential_lengths = []
-    for i, episode in enumerate(tqdm(eeg.split_session(), desc='Ingestion')):
+    for i, episode in enumerate(eeg.split_session()):
         action_label = np.max(np.unique(episode.action_state))
         preparation_label = np.max(np.unique(episode.preparation_state))
         activity = episode.action_state + episode.preparation_state
         essential_length = activity.nonzero()[0][-1] + 1
         np.savez(
-            output_dir / f'{data_path.stem}_{i:04d}.npz',
+            output_dir / f'{data_path.stem}_{i:03d}.npz',
             data=episode.data,
             action_label=action_label,
             preparation_label=preparation_label,

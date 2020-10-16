@@ -13,9 +13,9 @@ class EEGDrive:
         logging.info(f'Data ingestion from {data_path}')
         data_path = Path(data_path).expanduser()
         output_dir = Path(output_dir).expanduser()
-        output_dir.mkdir(parents=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
         statistics = ingest_session(data_path, output_dir)
-        with open(output_dir / f'{data_path.stem}_statistics.json') as f:
+        with open(output_dir / f'{data_path.stem}_statistics.json', 'w') as f:
             json.dump(statistics, f, indent=4)
 
 

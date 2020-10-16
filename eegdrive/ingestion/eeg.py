@@ -17,11 +17,22 @@ class EEG:
     def from_hdf5(path: Union[Path, str], frequency: float = 500.0) -> 'EEG':
         with h5py.File(path, 'r') as h5f:
             return EEG(
-                h5f['eeg_data'],
-                h5f['preparation_state'],
-                h5f['action_state'],
+                np.array(h5f['eeg_data']).T,
+                np.array(h5f['preparation_state'], dtype=np.int64),
+                np.array(h5f['action_state'], dtype=np.int64),
                 frequency,
             )
+
+    def __len__(self):
+        return self.data.shape[1]
+
+    @property
+    def channels(self):
+        return self.data.shape[0]
+
+    @property
+    def length(self):
+        return len(self)
 
     def slice(self, start: int, end: int) -> 'EEG':
         return EEG(
@@ -32,9 +43,8 @@ class EEG:
         )
 
     def split_session(self) -> Iterator['EEG']:
-        start_indices = (
-                np.maximum(self.preparation_state[1:] - self.preparation_state[:-1], 0) + 1
-        )
-        end_indices = np.append(start_indices[1:], len(self.preparation_state))
+        diff = self.preparation_state[1:] - self.preparation_state[:-1]
+        start_indices = (diff * (diff > 0)).nonzero()[0] + 1
+        end_indices = np.append(start_indices[1:], len(self))
         for start, end in zip(start_indices, end_indices):
             yield self.slice(start, end)
