@@ -8,9 +8,9 @@ from .utils import initialize_logger
 
 class EEGDrive:
     @staticmethod
-    def ingest(data_path: str, output_dir: str, processes: int) -> None:
+    def ingest(data_path: str, output_dir: str) -> None:
         initialize_logger()
-        logging.info(f'Data ingestion from {data_path} using {processes} processes')
+        logging.info(f'Data ingestion from {data_path}')
         data_path = Path(data_path).expanduser()
         output_dir = Path(output_dir).expanduser()
         output_dir.mkdir(parents=True)
