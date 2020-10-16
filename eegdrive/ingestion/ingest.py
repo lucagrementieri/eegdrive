@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Union, Dict, List
 
 import numpy as np
+from torchvision.transforms import Compose
 
 from .eeg import EEG
 from .transforms import HighPass, RemoveBeginning, RemoveLineNoise, Standardize
@@ -11,9 +12,10 @@ def ingest_session(
         data_path: Path, output_dir: Path
 ) -> Dict[str, Union[int, List[int]]]:
     eeg = EEG.from_hdf5(data_path)
-    transforms = [HighPass(1.0), RemoveBeginning(), RemoveLineNoise(), Standardize()]
-    for transform in transforms:
-        eeg = transform(eeg)
+    transform = Compose(
+        [HighPass(1.0), RemoveBeginning(), RemoveLineNoise(), Standardize()]
+    )
+    eeg = transform(eeg)
     statistics = {
         'dataset_size': 0,
         'action_count': [0] * 5,

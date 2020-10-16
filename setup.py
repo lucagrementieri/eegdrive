@@ -49,5 +49,6 @@ setup(
         'tensorboard >= 2.3',
         'tqdm >= 4.50',
         'torch >= 1.6',
+        'torchvision >= 0.7'
     ],
 )
