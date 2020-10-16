@@ -8,12 +8,10 @@ from tqdm import tqdm
 
 def ingest_session(data_path: Path, output_dir: Path):
     eeg = EEG.from_hdf5(data_path)
-    transforms = [HighPass(1.0), RemoveBeginning(), RemoveLineNoise()]
+    transforms = [HighPass(1.0), RemoveBeginning(), RemoveLineNoise(), Standardize()]
     for transform in transforms:
         eeg = transform(eeg)
-    standardize = Standardize()
     for i, episode in enumerate(tqdm(eeg.split_session(), desc='Ingestion')):
-        episode = standardize(episode)
         action_label = np.max(np.unique(episode.action_state))
         preparation_label = np.max(np.unique(episode.preparation_state))
         activity = episode.action_state + episode.preparation_state
