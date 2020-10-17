@@ -32,7 +32,7 @@ class EEGDrive:
         torch.save(feature_extractor.state_dict(), run_dir / 'feature_extractor.pt')
         features, labels = model.represent(dataset)
         train_features, test_features, train_labels, test_labels = train_test_split(
-            features, labels, test_size=0.09, random_state=42,
+            features, labels, test_size=0.09, random_state=0,
         )
         excluded_channels, cv_accuracy = model.channel_selection(train_features, train_labels)
         print('Excluded channels:', excluded_channels.tolist())
