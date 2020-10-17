@@ -34,6 +34,10 @@ class Model:
         train_features, test_features, train_labels, test_labels = train_test_split(
             features, labels, test_size=0.09, random_state=42
         )
+        def score(estimator, X, y):
+            preds = estimator.predict(X)
+            return np.mean(preds == y)
+
         for skip_channel in range(18):
             print('Remove channel', skip_channel)
             mask = np.ones(train_features.shape[1], dtype=bool)
@@ -42,7 +46,7 @@ class Model:
             skip_features = train_features[:, mask]
             skip_test = test_features[:, mask]
             classifier = RidgeClassifierCV(
-                alphas=(1.,), fit_intercept=False, normalize=True, store_cv_values=True
+                alphas=(1.,), fit_intercept=False, normalize=True, scoring=score, store_cv_values=True
             )
             classifier.fit(skip_features, train_labels)
             print(classifier.cv_values_)
@@ -55,7 +59,7 @@ class Model:
             # oppure held one out
         print('All channels')
         classifier = RidgeClassifierCV(
-            alphas=(1.0,), fit_intercept=False, normalize=True, store_cv_values=True
+            alphas=(1.0,), fit_intercept=False, normalize=True, scoring=score, store_cv_values=True
         )
         classifier.fit(train_features, train_labels)
         print(classifier.cv_values_)
