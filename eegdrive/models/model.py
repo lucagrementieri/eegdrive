@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.linear_model import RidgeClassifierCV
+from sklearn.linear_model import RidgeClassifier
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -15,7 +15,7 @@ class Model:
         self.module = module.to(self.device)
 
     def represent(self, dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
-        loader = DataLoader(dataset, batch_size=1, pin_memory=True)
+        loader = DataLoader(dataset, batch_size=1)
         self.module.eval()
         features = []
         labels = []
@@ -34,11 +34,23 @@ class Model:
         train_features, test_features, train_labels, test_labels = train_test_split(
             features, labels, test_size=0.09, random_state=42
         )
-        classifier = RidgeClassifierCV(
-            alphas=(0.01, 0.025, 0.05, 0.075, 0.1), fit_intercept=False, normalize=True, cv=6
+        for skip_channel in range(18):
+            print('Remove channel', skip_channel)
+            mask = np.ones(train_features.shape[1], dtype=bool)
+            for i in range(100):
+                mask[skip_channel*100+i::19*100] = False
+            skip_features = train_features[: mask]
+            skip_test = test_features[: mask]
+            classifier = RidgeClassifier(
+                alphas=(1,), fit_intercept=False, normalize=True, random_state=42
+            )
+            classifier.fit(skip_features, train_labels)
+            print(classifier.predict(skip_test))
+            print(test_labels)
+        print('All channels')
+        classifier = RidgeClassifier(
+            alphas=(1,), fit_intercept=False, normalize=True, random_state=42
         )
         classifier.fit(train_features, train_labels)
-        print(classifier.best_score_)
-        print(classifier.alpha_)
         print(classifier.predict(test_features))
         print(test_labels)
