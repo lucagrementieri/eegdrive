@@ -13,7 +13,7 @@ class FeatureExtractor1d(nn.Module):
             channels: int,
             filters: int,
             sizes: Tuple[int, ...] = (7, 9, 11),
-            max_dilation_exponent: int = 8,
+            max_dilation_exponent: int = 7,
     ):
         super().__init__()
         self.random_conv = RandomConv1d(channels, filters, sizes, max_dilation_exponent)

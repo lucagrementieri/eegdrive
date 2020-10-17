@@ -21,7 +21,7 @@ class Model:
         for episode, label in tqdm(loader, desc='Feature extraction'):
             episode = episode.to(self.device, non_blocking=True)
             with torch.no_grad():
-                episode_features = self.module(episode).cpu().numpy()
+                episode_features = self.module(episode).squeeze_().cpu().numpy()
             features.append(episode_features)
             labels.append(label)
         features = np.array(features)
@@ -35,6 +35,7 @@ class Model:
             'max_depth': 2,
             'eta': 1,
             'objective': 'multi:softmax',
+            'num_class': 5,
             'nthread': 4,
             'eval_metric': 'merror',
         }
