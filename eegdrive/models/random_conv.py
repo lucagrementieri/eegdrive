@@ -22,7 +22,7 @@ class RandomConv1d(nn.Module):
             self.convolutions.append(
                 nn.Conv1d(
                     channels,
-                    filters,
+                    filters * channels,
                     k,
                     padding=padding,
                     dilation=2 ** d_exp,
@@ -34,7 +34,7 @@ class RandomConv1d(nn.Module):
     def random_weights(self) -> None:
         for conv in self.convolutions:
             nn.init.normal_(conv.weight)
-            conv.weight -= conv.weight.mean(dim=-1, keepdim=False)
+            conv.weight.data -= conv.weight.mean(dim=-1, keepdim=True)
             nn.init.uniform_(conv.bias, -1, 1)
 
     def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
