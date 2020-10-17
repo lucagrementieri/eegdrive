@@ -41,10 +41,11 @@ class RandomConv1d(nn.Module):
     def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
         outputs = []
         for conv in self.convolutions:
-            d = conv.weight.shape[-1] - x.shape[-1]
+            d = conv.weight.shape[-1] * conv.dilation[-1] - 1 - x.shape[-1]
             if d > 0:
                 padding_left = d // 2
                 padding_right = d - padding_left
-                x = F.pad(x, [padding_left, padding_right])
-            outputs.append(conv(x))
+                outputs.append(conv(F.pad(x, [padding_left, padding_right])))
+            else:
+                outputs.append(conv(x))
         return outputs
