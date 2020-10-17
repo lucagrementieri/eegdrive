@@ -26,10 +26,12 @@ def ingest_session(
     for i, episode in enumerate(eeg.split_session()):
         action_label = np.max(np.unique(episode.action_state))
         preparation_label = np.max(np.unique(episode.preparation_state))
-        diff = eeg.preparation_state[1:] - eeg.preparation_state[1:][:-1]
-        preparation_length = (diff * (diff < 0)).nonzero()[0] + 1
-        assert eeg.preparation_state[preparation_length] == 0
-        assert eeg.preparation_state[preparation_length - 1] > 0
+        diff = episode.preparation_state[1:] - episode.preparation_state[:-1]
+        candidate_lengths = (diff * (diff < 0)).nonzero()[0] + 1
+        assert len(candidate_lengths) == 1
+        preparation_length = candidate_lengths[0]
+        assert episode.preparation_state[preparation_length] == 0
+        assert episode.preparation_state[preparation_length - 1] > 0
         np.savez(
             output_dir / f'{data_path.stem}_{i:03d}.npz',
             data=episode.data,

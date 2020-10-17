@@ -20,7 +20,7 @@ class HighPass:
 
 
 class RemoveBeginning:
-    def __init__(self, multiplier_order: int = 2):
+    def __init__(self, multiplier_order: int = 3):
         self.multiplier = 10 ** multiplier_order
 
     def __call__(self, eeg: EEG) -> EEG:
