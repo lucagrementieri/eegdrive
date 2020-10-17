@@ -56,14 +56,14 @@ class Model:
                     selected_features, channel
                 )
                 cv_accuracies = cross_val_score(
-                    self.classifier, pruned_features, labels, scoring=accuracy, cv=6,
+                    self.classifier, pruned_features, labels, scoring=accuracy, cv=5,
                 )
                 iteration_accuracies.append(np.array(cv_accuracies).mean())
             iteration_accuracies = np.array(iteration_accuracies)
             print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
-            if best_iteration_accuracy < best_accuracy:
+            if best_iteration_accuracy - 0.01 < best_accuracy:
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
@@ -100,5 +100,5 @@ class Model:
             excluded_channels: Optional[np.ndarray] = None,
     ) -> float:
         predictions = self.predict(features, excluded_channels)
-        accuracy = np.mean(predictions == labels)
+        accuracy = float(np.mean(predictions == labels))
         return accuracy
