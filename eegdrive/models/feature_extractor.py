@@ -9,11 +9,11 @@ from .random_conv import RandomConv1d
 
 class FeatureExtractor1d(nn.Module):
     def __init__(
-            self,
-            channels: int,
-            filters: int,
-            sizes: Tuple[int, ...] = (7, 9, 11),
-            max_dilation_exponent: int = 7,
+        self,
+        channels: int,
+        filters: int,
+        sizes: Tuple[int, ...] = (7, 9, 11),
+        max_dilation_exponent: int = 7,
     ):
         super().__init__()
         self.channels = channels
@@ -24,11 +24,17 @@ class FeatureExtractor1d(nn.Module):
 
         self.random_conv = RandomConv1d(channels, filters, sizes, max_dilation_exponent)
         self.max_pool = GlobalMaxPool(dim=-1)
-        self.positive_pool = PositiveProportion(dim=-1)
+        self.proportion_pool = PositiveProportion(dim=-1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         responses = self.random_conv(x)
-        features = [
-            pool(r) for r in responses for pool in (self.max_pool, self.positive_pool)
-        ]
-        return torch.cat(features, dim=-1)
+        max_features = torch.cat([
+            self.max_pool(r).reshape(x.shape[0], self.channels, self.filters)
+            for r in responses
+        ], dim=-1)
+        proportion_features = torch.cat([
+            self.proportion_pool(r).reshape(x.shape[0], self.channels, self.filters)
+            for r in responses
+        ], dim=-1)
+        features = torch.cat((max_features, proportion_features), dim=-1)
+        return features
