@@ -49,7 +49,7 @@ class Model:
             print(test_labels)
         print('All channels')
         classifier = RidgeClassifier(
-            alphas=(1,), fit_intercept=False, normalize=True, random_state=42
+            fit_intercept=False, normalize=True, random_state=42
         )
         classifier.fit(train_features, train_labels)
         print(classifier.predict(test_features))
