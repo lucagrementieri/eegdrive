@@ -14,12 +14,12 @@ class CLI:
                 'python3 -m eegdrive <command> [<args>]\n'
                 '\n'
                 'ingest      Process EEG data\n'
-                #: TODO 'train       Train SpeaREC model\n'
+                'train       Train classification model\n'
                 #: TODO 'test        Test SpeaREC EER on test pairs\n'
             ),
         )
         parser.add_argument(
-            'command', type=str, help='Sub-command to run', choices=('ingest',),
+            'command', type=str, help='Sub-command to run', choices=('ingest', 'train'),
         )
         args = parser.parse_args(sys.argv[1:2])
         command = args.command.replace('-', '_')
@@ -47,50 +47,35 @@ class CLI:
         args = parser.parse_args(sys.argv[2:])
         EEGDrive.ingest(args.data_path, args.output_dir)
 
-
-"""
     @staticmethod
     def train() -> None:
         parser = argparse.ArgumentParser(
-            description='Train SpeaREC model',
-            usage='python3 -m torchspearec train SUMMARY-PATH [--runs-dir  RUNS-DIR '
-                  '--batch-size BATCH-SIZE --epochs EPOCHS --lr LR '
-                  '--test-summary-path TEST-SUMMARY-PATH --test-pairs-path TEST-PAIRS-PATH]',
+            description='Train action classification model',
+            usage='python3 -m eegdrive train DATASET-DIR '
+                  '[--runs-dir RUNS-DIR --label-type LABEL-TYPE]',
         )
         parser.add_argument(
-            'summary_path',
-            metavar='summary-path',
+            'dataset_dir',
+            metavar='dataset-dir',
             type=str,
-            help='Path to data summary',
+            help='Path to directory of ingested data',
         )
         parser.add_argument(
             '--runs-dir', type=str, default='./runs', help='Output directory'
         )
-        parser.add_argument('--batch-size', type=int, default=64, help='Batch size')
-        parser.add_argument('--epochs', type=int, default=60, help='Number of epochs')
         parser.add_argument(
-            '--lr', type=float, default=0.001, help='Initial learning rate'
-        )
-        parser.add_argument(
-            '--test-summary-path', type=str, help='Path to test data summary'
-        )
-        parser.add_argument(
-            '--test-pairs-path', type=str, help='Path to test pairs file'
+            '--label-type', type=str, default='action', help='Label type'
         )
 
         args = parser.parse_args(sys.argv[2:])
 
-        print(f'Training SpeaREC using data listed in {args.summary_path}')
-        Spearec.train(
-            args.summary_path,
+        EEGDrive.train(
+            args.dataset_dir,
             args.runs_dir,
-            args.batch_size,
-            args.epochs,
-            args.lr,
-            args.test_summary_path,
-            args.test_pairs_path,
+            'action'
         )
 
+"""
     @staticmethod
     def test() -> None:
         parser = argparse.ArgumentParser(

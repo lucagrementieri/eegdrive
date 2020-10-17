@@ -23,7 +23,7 @@ class EEGDrive:
             json.dump(statistics, f, indent=4)
 
     @staticmethod
-    def train(dataset_dir: str, output_dir: str, label_type: str = 'action', ) -> None:
+    def train(dataset_dir: str, output_dir: str, label_type: str = 'action') -> None:
         dataset_dir = Path(dataset_dir).expanduser()
         run_dir = Path(output_dir) / str(int(time.time()))
         run_dir.mkdir(parents=True)

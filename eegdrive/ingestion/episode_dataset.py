@@ -23,4 +23,6 @@ class EpisodeDataset(Dataset):
         with np.load(path, allow_pickle=True) as npz:
             data = torch.tensor(npz['data'])
             label = npz[f'{self.label_type}_label']
+        if self.label_type == 'preparation':
+            label = max(label - 4, 0)
         return data, label
