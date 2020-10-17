@@ -3,7 +3,8 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-import xgboost as xgb
+from sklearn.linear_model import RidgeClassifierCV
+from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
@@ -30,22 +31,12 @@ class Model:
 
     @staticmethod
     def fit(features: np.array, labels: np.array) -> None:
-        dtrain = xgb.DMatrix(features, label=labels)
-        params = {
-            'max_depth': 2,
-            'eta': 1,
-            'objective': 'multi:softmax',
-            'num_class': 5,
-            'nthread': 4,
-            'eval_metric': 'merror',
-        }
-        results = xgb.cv(
-            params,
-            dtrain,
-            num_boost_round=100,
-            seed=42,
-            nfold=5,
-            metrics='merror',
-            early_stopping_rounds=10,
+        train_features, test_features, train_labels, test_labels = train_test_split(
+            features, labels, test_size=0.09, random_state=42
         )
-        print(results)
+        classifier = RidgeClassifierCV(normalize=True, cv=6)
+        classifier.fit(train_features, train_labels)
+        print(classifier.best_score_)
+        print(classifier.alpha_)
+        print(classifier.predict(test_features))
+        print(test_labels)

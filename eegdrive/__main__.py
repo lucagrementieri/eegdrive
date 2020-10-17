@@ -14,8 +14,7 @@ class CLI:
                 'python3 -m eegdrive <command> [<args>]\n'
                 '\n'
                 'ingest      Process EEG data\n'
-                'train       Train classification model\n'
-                #: TODO 'test        Test SpeaREC EER on test pairs\n'
+                'train       Train classification model with cross-validation\n'
             ),
         )
         parser.add_argument(
@@ -71,30 +70,6 @@ class CLI:
 
         EEGDrive.train(args.dataset_dir, args.runs_dir, 'action')
 
-
-"""
-    @staticmethod
-    def test() -> None:
-        parser = argparse.ArgumentParser(
-            description='Test SpeaREC EER on test pairs',
-            usage='python3 -m torchspearec test CHECKPOINT SUMMARY-PATH PAIRS-PATH',
-        )
-        parser.add_argument('checkpoint', type=str, help='Model checkpoint')
-        parser.add_argument(
-            'summary_path',
-            metavar='summary-path',
-            type=str,
-            help='Path to data summary',
-        )
-        parser.add_argument(
-            'pairs_path', metavar='pairs-path', type=str, help='Path to test pairs file'
-        )
-        args = parser.parse_args(sys.argv[2:])
-
-        print(f'Testing SpeaREC using data listed in from {args.summary_path}')
-        scores = Spearec.test(args.checkpoint, args.summary_path, args.pairs_path)
-        print(f'EERs using intermediate features', scores)
-"""
 
 if __name__ == '__main__':
     CLI()

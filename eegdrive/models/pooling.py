@@ -8,7 +8,7 @@ class PositiveProportion(nn.Module):
         self.dim = dim
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return torch.mean((x > 0).to(torch.float32), dim=self.dim)
+        return torch.mean(torch.tensor(x > 0).to(torch.float32), dim=self.dim)
 
 
 class GlobalMaxPool(nn.Module):

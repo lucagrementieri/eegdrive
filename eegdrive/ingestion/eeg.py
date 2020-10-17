@@ -47,4 +47,8 @@ class EEG:
         start_indices = (diff * (diff > 0)).nonzero()[0] + 1
         end_indices = np.append(start_indices[1:], len(self))
         for start, end in zip(start_indices, end_indices):
+            assert self.preparation_state[start] > 0
+            assert start == 0 or self.preparation_state[start - 1] == 0
+            assert self.preparation_state[end - 1] == 0
+            assert end == len(self) or self.preparation_state[end + 1] > 0
             yield self.slice(start, end)

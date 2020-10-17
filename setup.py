@@ -45,9 +45,9 @@ setup(
     install_requires=[
         'h5py >= 2.10',
         'numpy >= 1.19',
+        'scikit-learn >= 0.23',
         'scipy >= 1.5',
         'tqdm >= 4.50',
         'torch >= 1.6',
-        'xgboost >= 1.2'
     ],
 )

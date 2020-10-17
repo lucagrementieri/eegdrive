@@ -7,13 +7,11 @@ import torch
 
 from .ingestion import ingest_session, EpisodeDataset
 from .models import FeatureExtractor1d, Model
-from .utils import initialize_logger
 
 
 class EEGDrive:
     @staticmethod
     def ingest(data_path: str, output_dir: str) -> None:
-        initialize_logger()
         logging.info(f'Data ingestion from {data_path}')
         data_path = Path(data_path).expanduser()
         output_dir = Path(output_dir).expanduser()
@@ -27,9 +25,6 @@ class EEGDrive:
         dataset_dir = Path(dataset_dir).expanduser()
         run_dir = Path(output_dir) / str(int(time.time()))
         run_dir.mkdir(parents=True)
-        initialize_logger(run_dir)
-
-        # logging.info(f'Learning rate: {lr}')
 
         dataset = EpisodeDataset(dataset_dir, label_type)
         feature_extractor = FeatureExtractor1d(channels=19, filters=100)
