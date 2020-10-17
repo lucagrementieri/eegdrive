@@ -46,9 +46,8 @@ setup(
         'h5py >= 2.10',
         'numpy >= 1.19',
         'scipy >= 1.5',
-        'tensorboard >= 2.3',
         'tqdm >= 4.50',
         'torch >= 1.6',
-        'torchvision >= 0.7'
+        'xgboost >= 1.2'
     ],
 )

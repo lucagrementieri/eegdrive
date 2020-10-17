@@ -10,11 +10,11 @@ class RandomConv1d(nn.Module):
             self,
             channels: int,
             filters: int,
-            sizes: Tuple[int, ...],
+            sizes: Tuple[int, ...] = (7, 9, 11),
             max_dilation_exponent: int = 8,
     ):
         super().__init__()
-        self.convolutions = []
+        self.convolutions = nn.ModuleList()
         for k, d_exp, pad in itertools.product(
                 sizes, range(max_dilation_exponent + 1), (True, False)
         ):
