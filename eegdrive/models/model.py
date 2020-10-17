@@ -86,7 +86,7 @@ class Model:
             )
         print('Original algorithm', excluded_channels)
         excluded_channels = (~channel_mask).nonzero()[0]
-        print('Corrected excluded')
+        print('Corrected excluded', excluded_channels)
         selected_train_features = self._remove_channel_features(
             train_features, excluded_channels
         )
