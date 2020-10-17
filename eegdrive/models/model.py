@@ -3,8 +3,8 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.linear_model import RidgeClassifierCV
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import RidgeClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
@@ -37,7 +37,7 @@ class Model:
         def score(estimator, X, y):
             preds = estimator.predict(X)
             return np.mean(preds == y)
-
+        classifier = RidgeClassifier(fit_intercept=False, normalize=True)
         for skip_channel in range(18):
             print('Remove channel', skip_channel)
             mask = np.ones(train_features.shape[1], dtype=bool)
@@ -45,24 +45,17 @@ class Model:
                 mask[skip_channel * 100 + i:: 19 * 100] = False
             skip_features = train_features[:, mask]
             skip_test = test_features[:, mask]
-            classifier = RidgeClassifierCV(
-                alphas=(1.,), fit_intercept=False, normalize=True, scoring=score, store_cv_values=True
-            )
+            cv_scores = cross_val_score(classifier, skip_features, train_labels, scoring=score, cv=6)
+            print(cv_scores)
             classifier.fit(skip_features, train_labels)
-            print(classifier.cv_values_)
             predictions = classifier.predict(skip_test)
             print(predictions)
             print(test_labels)
             accuracy = np.mean(predictions == test_labels)
             print('Test accuracy:', accuracy)
-            # fare cross validation su canali e poi verificare su test
-            # oppure held one out
         print('All channels')
-        classifier = RidgeClassifierCV(
-            alphas=(1.0,), fit_intercept=False, normalize=True, scoring=score, store_cv_values=True
-        )
+        classifier = RidgeClassifier(fit_intercept=False, normalize=True)
         classifier.fit(train_features, train_labels)
-        print(classifier.cv_values_)
         predictions = classifier.predict(test_features)
         print(predictions)
         print(test_labels)
