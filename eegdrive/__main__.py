@@ -51,7 +51,7 @@ class CLI:
         parser = argparse.ArgumentParser(
             description='Train action classification model',
             usage='python3 -m eegdrive train DATASET-DIR '
-            '[--runs-dir RUNS-DIR --filters FILTERS --label-type LABEL-TYPE]',
+                  '[--runs-dir RUNS-DIR --filters FILTERS --label-type LABEL-TYPE]',
         )
         parser.add_argument(
             'dataset_dir',
