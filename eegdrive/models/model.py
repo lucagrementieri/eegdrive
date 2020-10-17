@@ -34,7 +34,9 @@ class Model:
         train_features, test_features, train_labels, test_labels = train_test_split(
             features, labels, test_size=0.09, random_state=42
         )
-        classifier = RidgeClassifierCV(normalize=True, cv=6)
+        classifier = RidgeClassifierCV(
+            alphas=(0.01, 0.025, 0.05, 0.075, 0.1), fit_intercept=False, normalize=True, cv=6
+        )
         classifier.fit(train_features, train_labels)
         print(classifier.best_score_)
         print(classifier.alpha_)
