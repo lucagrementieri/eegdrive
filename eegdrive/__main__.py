@@ -51,7 +51,8 @@ class CLI:
         parser = argparse.ArgumentParser(
             description='Train action classification model',
             usage='python3 -m eegdrive train DATASET-DIR '
-                  '[--runs-dir RUNS-DIR --filters FILTERS --label-type LABEL-TYPE]',
+                  '[--runs-dir RUNS-DIR --filters FILTERS '
+                  '--label-type LABEL-TYPE --seed SEED]',
         )
         parser.add_argument(
             'dataset_dir',
@@ -71,10 +72,15 @@ class CLI:
         parser.add_argument(
             '--label-type', type=str, default='action', help='Label type'
         )
+        parser.add_argument(
+            '--seed', type=int, default=42, help='Random seed for dataset splitting'
+        )
 
         args = parser.parse_args(sys.argv[2:])
 
-        EEGDrive.train(args.dataset_dir, args.runs_dir, args.filters, 'action')
+        EEGDrive.train(
+            args.dataset_dir, args.runs_dir, args.filters, args.label_type, args.seed
+        )
 
 
 if __name__ == '__main__':

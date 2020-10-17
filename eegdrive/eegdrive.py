@@ -4,6 +4,7 @@ from pathlib import Path
 
 import torch
 from sklearn.model_selection import train_test_split
+
 from .ingestion import ingest_session, EpisodeDataset
 from .models import FeatureExtractor1d, Model
 
@@ -20,7 +21,11 @@ class EEGDrive:
 
     @staticmethod
     def train(
-            dataset_dir: str, output_dir: str, filters: int, label_type: str = 'action'
+            dataset_dir: str,
+            output_dir: str,
+            filters: int,
+            label_type: str = 'action',
+            seed: int = 42,
     ) -> None:
         dataset_dir = Path(dataset_dir).expanduser()
         run_dir = Path(output_dir) / str(int(time.time()))
@@ -32,9 +37,11 @@ class EEGDrive:
         torch.save(feature_extractor.state_dict(), run_dir / 'feature_extractor.pt')
         features, labels = model.represent(dataset)
         train_features, test_features, train_labels, test_labels = train_test_split(
-            features, labels, test_size=0.09, random_state=0,
+            features, labels, test_size=0.09, random_state=seed,
         )
-        excluded_channels, cv_accuracy = model.channel_selection(train_features, train_labels)
+        excluded_channels, cv_accuracy = model.channel_selection(
+            train_features, train_labels
+        )
         print('Excluded channels:', excluded_channels.tolist())
         print(f'Cross-validation mean accuracy: {cv_accuracy:0.3f}')
         model.fit(train_features, train_labels, excluded_channels)
