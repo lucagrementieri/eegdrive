@@ -25,5 +25,6 @@ class EpisodeDataset(Dataset):
             label = npz[f'{self.label_type}_label']
             if self.label_type == 'preparation':
                 data = data[:, :npz['preparation_length']]
-                label = max(label - 4, 0)
+                assert label in (5, 6, 7, 8)
+                label = max(label - 5, 0)
         return data, label

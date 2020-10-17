@@ -80,7 +80,7 @@ class Model:
             assert channel_mask[corrected_channel_idx]
             channel_mask[corrected_channel_idx] = False
             selected_features = self._remove_channel_features(
-                selected_features, corrected_channel_idx
+                selected_features, best_iteration_channel
             )
 
         excluded_channels = (~channel_mask).nonzero()[0]
