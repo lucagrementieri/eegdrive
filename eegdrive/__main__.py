@@ -69,11 +69,8 @@ class CLI:
 
         args = parser.parse_args(sys.argv[2:])
 
-        EEGDrive.train(
-            args.dataset_dir,
-            args.runs_dir,
-            'action'
-        )
+        EEGDrive.train(args.dataset_dir, args.runs_dir, 'action')
+
 
 """
     @staticmethod
