@@ -25,7 +25,7 @@ with (here / 'README.md').open(encoding='utf-8') as f:
 setup(
     name='eegdrive',
     version=find_version('eegdrive', '__init__.py'),
-    description='Camlin Group assessment on EEG classification',
+    description='EEG classification',
     long_description=long_description,
     author='Luca Grementieri',
     author_email='luca.grementieri@ens-paris-saclay.fr',
