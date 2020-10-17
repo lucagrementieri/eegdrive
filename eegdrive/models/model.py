@@ -16,7 +16,7 @@ class Model:
         self.classifier = RidgeClassifier(fit_intercept=False, normalize=True)
 
     def _remove_channel_features(
-        self, features: np.ndarray, channel: Union[int, Sequence[int]]
+            self, features: np.ndarray, channel: Union[int, Sequence[int]]
     ) -> np.ndarray:
         selected_features = features.reshape(
             (features.shape[0], -1, 2 * self.module.n_layers * self.module.filters)
@@ -41,7 +41,7 @@ class Model:
         return features, labels
 
     def channel_selection(
-        self, features: np.ndarray, labels: np.ndarray
+            self, features: np.ndarray, labels: np.ndarray
     ) -> Tuple[np.ndarray, float]:
         def accuracy(estimator: RidgeClassifier, x: np.ndarray, y: np.ndarray) -> float:
             return float(np.mean(estimator.predict(x) == y))
@@ -56,17 +56,14 @@ class Model:
                     selected_features, channel
                 )
                 cv_accuracies = cross_val_score(
-                    self.classifier, pruned_features, labels, scoring=accuracy, cv=9,
+                    self.classifier, pruned_features, labels, scoring=accuracy, cv=5,
                 )
                 iteration_accuracies.append(np.array(cv_accuracies).mean())
             iteration_accuracies = np.array(iteration_accuracies)
             print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
-            if (
-                    best_iteration_accuracy - 0.01 < best_accuracy
-                    or best_iteration_accuracy - np.median(iteration_accuracies) < 0.03
-            ):
+            if best_iteration_accuracy - 0.01 < best_accuracy:
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
@@ -82,25 +79,25 @@ class Model:
         return excluded_channels, best_accuracy
 
     def fit(
-        self,
-        features: np.ndarray,
-        labels: np.ndarray,
-        excluded_channels: Optional[np.ndarray] = None,
+            self,
+            features: np.ndarray,
+            labels: np.ndarray,
+            excluded_channels: Optional[np.ndarray] = None,
     ) -> None:
         selected_features = self._remove_channel_features(features, excluded_channels)
         self.classifier.fit(selected_features, labels)
 
     def predict(
-        self, features: np.ndarray, excluded_channels: Optional[np.ndarray] = None
+            self, features: np.ndarray, excluded_channels: Optional[np.ndarray] = None
     ) -> np.ndarray:
         selected_features = self._remove_channel_features(features, excluded_channels)
         return self.classifier.predict(selected_features)
 
     def eval(
-        self,
-        features: np.ndarray,
-        labels: np.ndarray,
-        excluded_channels: Optional[np.ndarray] = None,
+            self,
+            features: np.ndarray,
+            labels: np.ndarray,
+            excluded_channels: Optional[np.ndarray] = None,
     ) -> float:
         predictions = self.predict(features, excluded_channels)
         accuracy = float(np.mean(predictions == labels))
