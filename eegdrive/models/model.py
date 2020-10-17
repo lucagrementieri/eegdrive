@@ -21,7 +21,6 @@ class Model:
         selected_features = features.reshape(
             (features.shape[0], -1, 2 * self.module.n_layers * self.module.filters)
         )
-        print(selected_features.shape)
         selected_features = np.delete(selected_features, channel, axis=1)
         selected_features = selected_features.reshape(features.shape[0], -1)
         return selected_features
@@ -71,7 +70,7 @@ class Model:
             print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
-            if best_iteration_accuracy < best_accuracy:
+            if best_iteration_accuracy + 0.01 < best_accuracy:
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
@@ -88,7 +87,7 @@ class Model:
         selected_train_features = self._remove_channel_features(
             train_features, excluded_channels
         )
-        assert np.all(selected_train_features == train_features)
+        assert np.all(selected_train_features == selected_features)
         selected_test_features = self._remove_channel_features(
             test_features, excluded_channels
         )
