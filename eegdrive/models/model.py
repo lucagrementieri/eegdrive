@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Union, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -14,6 +14,16 @@ class Model:
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.module = module.to(self.device)
         self.classifier = RidgeClassifier(fit_intercept=False, normalize=True)
+
+    def _remove_channel_features(
+            self, features: np.ndarray, channel: Union[int, Sequence[int]]
+    ) -> np.ndarray:
+        selected_features = features.reshape(
+            (features.shape[0], self.module.channels, -1)
+        )
+        selected_features = np.delete(selected_features, channel, axis=1)
+        selected_features = selected_features.reshape(features.shape[0], -1)
+        return selected_features
 
     def represent(self, dataset: Dataset) -> Tuple[np.ndarray, np.ndarray]:
         loader = DataLoader(dataset, batch_size=1)
@@ -31,11 +41,9 @@ class Model:
         return features, labels
 
     def channel_selection(self, features: np.ndarray, labels: np.ndarray):
+        features = features.reshape(features.shape[0], -1)
         train_features, test_features, train_labels, test_labels = train_test_split(
-            features.reshape(features.shape[0], -1),
-            labels,
-            test_size=0.09,
-            random_state=42,
+            features, labels, test_size=0.09, random_state=42,
         )
 
         def accuracy(estimator: RidgeClassifier, x: np.ndarray, y: np.ndarray):
@@ -44,10 +52,12 @@ class Model:
         best_accuracy = 0
         iteration_accuracies = []
         channel_mask = np.ones(self.module.channels, dtype=bool)
-        selected_features = train_features.reshape(-1, *features.shape[1:])
+        selected_features = train_features
         while True:
             for channel in trange(channel_mask.sum(), desc='Channel selection'):
-                pruned_features = np.delete(selected_features, channel, axis=1)
+                pruned_features = self._remove_channel_features(
+                    selected_features, channel
+                )
                 cv_accuracies = cross_val_score(
                     self.classifier,
                     pruned_features,
@@ -69,25 +79,17 @@ class Model:
             )
             assert channel_mask[corrected_channel_idx]
             channel_mask[corrected_channel_idx] = False
-            selected_features = np.delete(
-                selected_features, best_iteration_channel, axis=1
+            selected_features = self._remove_channel_features(
+                selected_features, corrected_channel_idx
             )
 
         excluded_channels = (~channel_mask).nonzero()[0]
-        selected_train_features = train_features.reshape(-1, *features.shape[1:])
-        selected_train_features = np.delete(
-            selected_train_features, excluded_channels, axis=1
-        )
-        selected_train_features = selected_train_features.reshape(
-            train_features.shape[0], -1
+        selected_train_features = self._remove_channel_features(
+            train_features, excluded_channels
         )
         assert np.all(selected_train_features == train_features)
-        selected_test_features = test_features.reshape(-1, *features.shape[1:])
-        selected_test_features = np.delete(
-            selected_test_features, excluded_channels, axis=1
-        )
-        selected_test_features = selected_test_features.reshape(
-            test_features.shape[0], -1
+        selected_test_features = self._remove_channel_features(
+            test_features, excluded_channels
         )
         self.classifier.fit(selected_train_features, train_labels)
         predictions = self.classifier.predict(selected_test_features)
