@@ -63,7 +63,10 @@ class Model:
             print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
-            if best_iteration_accuracy - 0.01 < best_accuracy:
+            if (
+                    best_iteration_accuracy - 0.01 < best_accuracy
+                    or best_iteration_accuracy - np.median(iteration_accuracies) < 0.02
+            ):
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
