@@ -36,7 +36,10 @@ class EEGDrive:
         np.random.seed(seed)
 
         dataset = EpisodeDataset(dataset_dir, label_type)
-        feature_extractor = FeatureExtractor1d(channels=19, filters=filters)
+        dilation_exponent = 5 if label_type == 'preparation' else 7
+        feature_extractor = FeatureExtractor1d(
+            channels=19, filters=filters, max_dilation_exponent=dilation_exponent
+        )
         model = Model(feature_extractor)
         torch.save(feature_extractor.state_dict(), run_dir / 'feature_extractor.pt')
         features, labels = model.represent(dataset)
