@@ -45,12 +45,20 @@ class Model:
                 fit_intercept=False, normalize=True, random_state=42
             )
             classifier.fit(skip_features, train_labels)
-            print(classifier.predict(skip_test))
+            predictions = classifier.predict(skip_test)
+            print(predictions)
             print(test_labels)
+            accuracy = np.mean(predictions == test_labels)
+            print('Test accuracy:', accuracy)
+            # fare cross validation su canali e poi verificare su test
+            # oppure held one out
         print('All channels')
         classifier = RidgeClassifier(
             fit_intercept=False, normalize=True, random_state=42
         )
         classifier.fit(train_features, train_labels)
-        print(classifier.predict(test_features))
+        predictions = classifier.predict(test_features)
+        print(predictions)
         print(test_labels)
+        accuracy = np.mean(predictions == test_labels)
+        print('Test accuracy:', accuracy)
