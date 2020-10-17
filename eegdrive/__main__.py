@@ -73,7 +73,7 @@ class CLI:
             '--label-type', type=str, default='action', help='Label type'
         )
         parser.add_argument(
-            '--seed', type=int, default=42, help='Random seed for dataset splitting'
+            '--seed', type=int, default=42, help='Random seed'
         )
 
         args = parser.parse_args(sys.argv[2:])

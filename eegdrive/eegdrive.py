@@ -2,6 +2,7 @@ import json
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 from sklearn.model_selection import train_test_split
 
@@ -30,6 +31,9 @@ class EEGDrive:
         dataset_dir = Path(dataset_dir).expanduser()
         run_dir = Path(output_dir) / str(int(time.time()))
         run_dir.mkdir(parents=True)
+
+        torch.manual_seed(seed)
+        np.random.seed(seed)
 
         dataset = EpisodeDataset(dataset_dir, label_type)
         feature_extractor = FeatureExtractor1d(channels=19, filters=filters)
