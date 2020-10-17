@@ -56,7 +56,7 @@ class Model:
                     selected_features, channel
                 )
                 cv_accuracies = cross_val_score(
-                    self.classifier, pruned_features, labels, scoring=accuracy, cv=5,
+                    self.classifier, pruned_features, labels, scoring=accuracy, cv=9,
                 )
                 iteration_accuracies.append(np.array(cv_accuracies).mean())
             iteration_accuracies = np.array(iteration_accuracies)
