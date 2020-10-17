@@ -51,7 +51,7 @@ class CLI:
         parser = argparse.ArgumentParser(
             description='Train action classification model',
             usage='python3 -m eegdrive train DATASET-DIR '
-                  '[--runs-dir RUNS-DIR --label-type LABEL-TYPE]',
+            '[--runs-dir RUNS-DIR --filters FILTERS --label-type LABEL-TYPE]',
         )
         parser.add_argument(
             'dataset_dir',
@@ -63,12 +63,18 @@ class CLI:
             '--runs-dir', type=str, default='./runs', help='Output directory'
         )
         parser.add_argument(
+            '--filters',
+            type=int,
+            default=100,
+            help='Number of convolutional filters per channel per configuration',
+        )
+        parser.add_argument(
             '--label-type', type=str, default='action', help='Label type'
         )
 
         args = parser.parse_args(sys.argv[2:])
 
-        EEGDrive.train(args.dataset_dir, args.runs_dir, 'action')
+        EEGDrive.train(args.dataset_dir, args.runs_dir, args.filters, 'action')
 
 
 if __name__ == '__main__':
