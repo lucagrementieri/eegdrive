@@ -1,4 +1,4 @@
-from typing import Union, Sequence, Tuple
+from typing import Union, Optional, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -40,14 +40,16 @@ class Model:
         labels = np.array(labels)
         return features, labels
 
-    def channel_selection(self, features: np.ndarray, labels: np.ndarray):
+    def channel_selection(
+            self, features: np.ndarray, labels: np.ndarray
+    ) -> Tuple[np.ndarray, float]:
         features = features.reshape(features.shape[0], -1)
         train_features, test_features, train_labels, test_labels = train_test_split(
             features, labels, test_size=0.09, random_state=42,
         )
 
-        def accuracy(estimator: RidgeClassifier, x: np.ndarray, y: np.ndarray):
-            return np.mean(estimator.predict(x) == y)
+        def accuracy(estimator: RidgeClassifier, x: np.ndarray, y: np.ndarray) -> float:
+            return float(np.mean(estimator.predict(x) == y))
 
         best_accuracy = 0
         iteration_accuracies = []
@@ -70,7 +72,7 @@ class Model:
             print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
-            if best_iteration_accuracy + 0.01 < best_accuracy:
+            if best_iteration_accuracy < best_accuracy:
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
@@ -82,58 +84,30 @@ class Model:
             selected_features = self._remove_channel_features(
                 selected_features, best_iteration_channel
             )
-
         excluded_channels = (~channel_mask).nonzero()[0]
-        selected_train_features = self._remove_channel_features(
-            train_features, excluded_channels
-        )
-        assert np.all(selected_train_features == selected_features)
-        selected_test_features = self._remove_channel_features(
-            test_features, excluded_channels
-        )
-        self.classifier.fit(selected_train_features, train_labels)
-        predictions = self.classifier.predict(selected_test_features)
-        print(predictions)
-        print(test_labels)
-        accuracy = np.mean(predictions == test_labels)
-        print('Test accuracy:', accuracy)
+        return excluded_channels, best_accuracy
 
+    def fit(
+            self,
+            features: np.ndarray,
+            labels: np.ndarray,
+            excluded_channels: Optional[np.ndarray] = None,
+    ) -> None:
+        selected_features = self._remove_channel_features(features, excluded_channels)
+        self.classifier.fit(selected_features, labels)
 
-"""
-    @staticmethod
-    def fit(features: np.ndarray, labels: np.ndarray) -> None:
-        train_features, test_features, train_labels, test_labels = train_test_split(
-            features, labels, test_size=0.09, random_state=42
-        )
+    def predict(
+            self, features: np.ndarray, excluded_channels: Optional[np.ndarray] = None
+    ) -> np.ndarray:
+        selected_features = self._remove_channel_features(features, excluded_channels)
+        return self.classifier.predict(selected_features)
 
-        def score(estimator, X, y):
-            preds = estimator.predict(X)
-            return np.mean(preds == y)
-
-        classifier = RidgeClassifier(fit_intercept=False, normalize=True)
-        for skip_channel in range(18):
-            print('Remove channel', skip_channel)
-            mask = np.ones(train_features.shape[1], dtype=bool)
-            for i in range(100):
-                mask[skip_channel * 100 + i:: 19 * 100] = False
-            skip_features = train_features[:, mask]
-            skip_test = test_features[:, mask]
-            cv_scores = cross_val_score(
-                classifier, skip_features, train_labels, scoring=score, cv=6
-            )
-            print(cv_scores)
-            classifier.fit(skip_features, train_labels)
-            predictions = classifier.predict(skip_test)
-            print(predictions)
-            print(test_labels)
-            accuracy = np.mean(predictions == test_labels)
-            print('Test accuracy:', accuracy)
-        print('All channels')
-        classifier = RidgeClassifier(fit_intercept=False, normalize=True)
-        classifier.fit(train_features, train_labels)
-        predictions = classifier.predict(test_features)
-        print(predictions)
-        print(test_labels)
-        accuracy = np.mean(predictions == test_labels)
-        print('Test accuracy:', accuracy)
-"""
+    def eval(
+            self,
+            features: np.ndarray,
+            labels: np.ndarray,
+            excluded_channels: Optional[np.ndarray] = None,
+    ) -> float:
+        predictions = self.predict(features, excluded_channels)
+        accuracy = np.mean(predictions == labels)
+        return accuracy

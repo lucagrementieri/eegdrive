@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 import torch
-
+from sklearn.model_selection import train_test_split
 from .ingestion import ingest_session, EpisodeDataset
 from .models import FeatureExtractor1d, Model
 
@@ -31,4 +31,12 @@ class EEGDrive:
         model = Model(feature_extractor)
         torch.save(feature_extractor.state_dict(), run_dir / 'feature_extractor.pt')
         features, labels = model.represent(dataset)
-        model.channel_selection(features, labels)
+        train_features, test_features, train_labels, test_labels = train_test_split(
+            features, labels, test_size=0.09, random_state=42,
+        )
+        excluded_channels, cv_accuracy = model.channel_selection(train_features, train_labels)
+        print('Excluded channels:', excluded_channels.tolist())
+        print(f'Cross-validation mean accuracy: {cv_accuracy:0.3f}')
+        model.fit(train_features, train_labels, excluded_channels)
+        test_accuracy = model.eval(test_features, test_labels, excluded_channels)
+        print(f'Test accuracy: {test_accuracy:0.3f}')
