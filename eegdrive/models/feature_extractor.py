@@ -20,6 +20,7 @@ class FeatureExtractor1d(nn.Module):
         self.filters = filters
         self.sizes = sizes
         self.max_dilation_exponent = max_dilation_exponent
+        self.n_layers = len(sizes) * (max_dilation_exponent + 1) * 2
 
         self.random_conv = RandomConv1d(channels, filters, sizes, max_dilation_exponent)
         self.max_pool = GlobalMaxPool(dim=-1)

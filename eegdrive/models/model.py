@@ -19,7 +19,7 @@ class Model:
             self, features: np.ndarray, channel: Union[int, Sequence[int]]
     ) -> np.ndarray:
         selected_features = features.reshape(
-            (features.shape[0], -1, self.module.channels, self.module.filters)
+            (features.shape[0], self.module.n_layers, -1, self.module.filters)
         )
         selected_features = np.delete(selected_features, channel, axis=2)
         selected_features = selected_features.reshape(features.shape[0], -1)
