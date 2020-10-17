@@ -24,7 +24,6 @@ class Model:
                 episode_features = self.module(episode).cpu().numpy()
             features.append(episode_features)
             labels.append(label)
-        # TODO: check size (dilation can cause problems)
         features = np.array(features)
         labels = np.array(labels)
         return features, labels

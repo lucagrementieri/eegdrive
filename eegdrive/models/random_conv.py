@@ -3,6 +3,7 @@ from typing import Tuple, List
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 
 class RandomConv1d(nn.Module):
@@ -38,4 +39,12 @@ class RandomConv1d(nn.Module):
             nn.init.uniform_(conv.bias, -1, 1)
 
     def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
-        return [conv(x) for conv in self.convolutions]
+        outputs = []
+        for conv in self.convolutions:
+            d = conv.weight.shape[-1] - x.shape[-1]
+            if d > 0:
+                padding_left = d // 2
+                padding_right = d - padding_left
+                x = F.pad(x, [padding_left, padding_right])
+            outputs.append(conv(x))
+        return outputs
