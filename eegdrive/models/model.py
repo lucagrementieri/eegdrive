@@ -53,6 +53,7 @@ class Model:
         iteration_accuracies = []
         channel_mask = np.ones(self.module.channels, dtype=bool)
         selected_features = train_features
+        excluded_channels = []
         while True:
             for channel in trange(channel_mask.sum(), desc='Channel selection'):
                 pruned_features = self._remove_channel_features(
@@ -74,6 +75,7 @@ class Model:
                 break
             best_accuracy = best_iteration_accuracy
             iteration_accuracies = []
+            excluded_channels.append(best_iteration_channel)
             corrected_channel_idx = np.argmax(
                 channel_mask.cumsum() == best_iteration_channel
             )
@@ -82,8 +84,9 @@ class Model:
             selected_features = self._remove_channel_features(
                 selected_features, best_iteration_channel
             )
-
+        print('Original algorithm', excluded_channels)
         excluded_channels = (~channel_mask).nonzero()[0]
+        print('Corrected excluded')
         selected_train_features = self._remove_channel_features(
             train_features, excluded_channels
         )
