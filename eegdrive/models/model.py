@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.linear_model import RidgeClassifier
+from sklearn.linear_model import RidgeClassifierCV
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -41,10 +41,11 @@ class Model:
                 mask[skip_channel * 100 + i:: 19 * 100] = False
             skip_features = train_features[:, mask]
             skip_test = test_features[:, mask]
-            classifier = RidgeClassifier(
-                fit_intercept=False, normalize=True, random_state=42
+            classifier = RidgeClassifierCV(
+                alphas=(1.,), fit_intercept=False, normalize=True, store_cv_values=True
             )
             classifier.fit(skip_features, train_labels)
+            print(classifier.cv_values_)
             predictions = classifier.predict(skip_test)
             print(predictions)
             print(test_labels)
@@ -53,10 +54,11 @@ class Model:
             # fare cross validation su canali e poi verificare su test
             # oppure held one out
         print('All channels')
-        classifier = RidgeClassifier(
-            fit_intercept=False, normalize=True, random_state=42
+        classifier = RidgeClassifierCV(
+            alphas=(1.0,), fit_intercept=False, normalize=True, store_cv_values=True
         )
         classifier.fit(train_features, train_labels)
+        print(classifier.cv_values_)
         predictions = classifier.predict(test_features)
         print(predictions)
         print(test_labels)
