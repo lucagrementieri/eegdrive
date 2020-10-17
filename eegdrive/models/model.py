@@ -77,7 +77,7 @@ class Model:
             iteration_accuracies = []
             excluded_channels.append(best_iteration_channel)
             corrected_channel_idx = np.argmax(
-                channel_mask.cumsum() == best_iteration_channel
+                channel_mask.cumsum() - 1 == best_iteration_channel
             )
             assert channel_mask[corrected_channel_idx]
             channel_mask[corrected_channel_idx] = False
