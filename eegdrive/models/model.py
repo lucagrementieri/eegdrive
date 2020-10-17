@@ -38,11 +38,11 @@ class Model:
             print('Remove channel', skip_channel)
             mask = np.ones(train_features.shape[1], dtype=bool)
             for i in range(100):
-                mask[skip_channel*100+i::19*100] = False
+                mask[skip_channel * 100 + i:: 19 * 100] = False
             skip_features = train_features[:, mask]
             skip_test = test_features[:, mask]
             classifier = RidgeClassifier(
-                alphas=(1,), fit_intercept=False, normalize=True, random_state=42
+                fit_intercept=False, normalize=True, random_state=42
             )
             classifier.fit(skip_features, train_labels)
             print(classifier.predict(skip_test))
