@@ -36,7 +36,7 @@ class EEGDrive:
         )
         excluded_channels, cv_accuracy = model.channel_selection(train_features, train_labels)
         print('Excluded channels:', excluded_channels.tolist())
-        print(f'Cross-validation mean accuracy: {cv_accuracy:0.3f}')
+        print(f'6-fold cross-validation mean accuracy: {cv_accuracy:0.3f}')
         model.fit(train_features, train_labels, excluded_channels)
         test_accuracy = model.eval(test_features, test_labels, excluded_channels)
         print(f'Test accuracy: {test_accuracy:0.3f}')
