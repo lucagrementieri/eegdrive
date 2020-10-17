@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.linear_model import RidgeClassifier
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm, trange
 
@@ -33,7 +33,7 @@ class Model:
         for episode, label in tqdm(loader, desc='Feature extraction'):
             episode = episode.to(self.device, non_blocking=True)
             with torch.no_grad():
-                episode_features = self.module(episode).squeeze_().cpu().numpy()
+                episode_features = self.module(episode).flatten().cpu().numpy()
             features.append(episode_features)
             labels.append(label)
         features = np.array(features)
@@ -43,29 +43,20 @@ class Model:
     def channel_selection(
             self, features: np.ndarray, labels: np.ndarray
     ) -> Tuple[np.ndarray, float]:
-        features = features.reshape(features.shape[0], -1)
-        train_features, test_features, train_labels, test_labels = train_test_split(
-            features, labels, test_size=0.09, random_state=42,
-        )
-
         def accuracy(estimator: RidgeClassifier, x: np.ndarray, y: np.ndarray) -> float:
             return float(np.mean(estimator.predict(x) == y))
 
         best_accuracy = 0
         iteration_accuracies = []
         channel_mask = np.ones(self.module.channels, dtype=bool)
-        selected_features = train_features
+        selected_features = features
         while True:
             for channel in trange(channel_mask.sum(), desc='Channel selection'):
                 pruned_features = self._remove_channel_features(
                     selected_features, channel
                 )
                 cv_accuracies = cross_val_score(
-                    self.classifier,
-                    pruned_features,
-                    train_labels,
-                    scoring=accuracy,
-                    cv=6,
+                    self.classifier, pruned_features, labels, scoring=accuracy, cv=6,
                 )
                 iteration_accuracies.append(np.array(cv_accuracies).mean())
             iteration_accuracies = np.array(iteration_accuracies)
