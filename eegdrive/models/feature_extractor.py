@@ -16,6 +16,11 @@ class FeatureExtractor1d(nn.Module):
             max_dilation_exponent: int = 7,
     ):
         super().__init__()
+        self.channels = channels
+        self.filters = filters
+        self.sizes = sizes
+        self.max_dilation_exponent = max_dilation_exponent
+
         self.random_conv = RandomConv1d(channels, filters, sizes, max_dilation_exponent)
         self.max_pool = GlobalMaxPool(dim=-1)
         self.positive_pool = PositiveProportion(dim=-1)

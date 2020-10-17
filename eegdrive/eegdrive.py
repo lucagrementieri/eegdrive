@@ -31,4 +31,4 @@ class EEGDrive:
         model = Model(feature_extractor)
         torch.save(feature_extractor.state_dict(), run_dir / 'feature_extractor.pt')
         features, labels = model.represent(dataset)
-        model.fit(features, labels)
+        model.channel_selection(features, labels)
