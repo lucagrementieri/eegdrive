@@ -60,7 +60,6 @@ class Model:
                 )
                 iteration_accuracies.append(np.array(cv_accuracies).mean())
             iteration_accuracies = np.array(iteration_accuracies)
-            print(iteration_accuracies)
             best_iteration_channel = np.argmax(iteration_accuracies)
             best_iteration_accuracy = iteration_accuracies[best_iteration_channel]
             if best_iteration_accuracy - 0.01 < best_accuracy:
